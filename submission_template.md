@@ -10,7 +10,7 @@
 
 ## 1) Code Review Findings
 ### Critical bugs
-- Logic Error (SKewed Average): The function divides `len(orders)` (all orders) instead of the count of non-cancelled orders. This results in  a mathematically incorrect average that is lower than the true value.
+- Logic Error (Skewed Average): The function divides `len(orders)` (all orders) instead of the count of non-cancelled orders. This results in  a mathematically incorrect average that is lower than the true value.
 - ZeroDivisionErro: If the input `orders` is empty, the code attempts to divide by zero, causing a runtime crash.
 
 ### Edge cases & risks
@@ -22,7 +22,7 @@
 
 ## 2) Proposed Fixes / Improvements
 ### Summary of changes
-- Corrected Denominator : Introduced `vaid_count` to track only the orders included in the sum.
+- Corrected Denominator : Introduced `valid_count` to track only the orders included in the sum.
 - Zero-check : added a check to reutrn `0.0` if no valid orders exist, preventing crashes.
 -Defensive Access : Used `.get()` for dictionary access to prevent `keyError` on malformed data.
 - Data consistency : Initialized `total` as a float to ensure consistent return types.
@@ -62,11 +62,11 @@ If you were to test this function, what areas or scenarios would you focus on, a
 
 ## 1) Code Review Findings
 ### Critical bugs
-- Validation Logic Failure: The original code considered any string with an @ symbol to be a valid email (e.g., "@@@", "user@"). This is a massive false-positive rate.
+- Validation Logic Failure: The original code considered any string with an `@`symbol to be a valid email (e.g., `@@@`, `user@`). This is a massive false-positive rate.
 - Type Incompatibility: The original code would crash with a TypeError if the list contained None or an integer, as the in operator on an integer is invalid.
 - Zero Division Risk (Structural): While the original function returns a count, the logical failure to validate the input structure makes it unreliable for any subsequent operations.
 ### Edge cases & risks
-- Empty Strings/Whitespace: The original code counts " @ " as a valid email
+- Empty Strings/Whitespace: The original code counts `@` as a valid email
 - Non-String Objects: Lists often contain un clean data (nulls from databases). The original code does not handle these safely
 - Malformed Domains: An email like user@domain (missing the .com or extension) was incorrectly accepted.
 ### Code quality / design issues
@@ -117,11 +117,10 @@ If you were to test this function, what areas or scenarios would you focus on, a
 
 ## 1) Code Review Findings
 ### Critical bugs
-- Skewed Average (Mathematical Logic Error): The count is fixed at `len(values)` at the start. If some values are None, they are skipped in the total, but the denominator still includes them. This results in a  average that is lower than the true average of the valid measurements.
+- Skewed Average (Mathematical Logic Error): The count is fixed at `len(values)` at the start. If some values are None, they are skipped in the total, but the denominator still includes them. This results in an  average that is lower than the true average of the valid measurements.
 
 - ZeroDivisionError: If the values list is empty, `len(values)` is 0, causing a crash.
 
-- ZeroDivisionError (Filtered): Even if the list isn't empty, if all entries are `None`, the code will still attempt to divide 0 by the length of the list, which technically avoids a crash but returns an inaccurate 0.0 when it should perhaps be handled as a "no data" state.
 
 ### Edge cases & risks
 - Non-Numeric Strings: The code uses float(v). If a value is a string that cannot be converted (e.g., "N/A" or "error"), the function will crash with a ValueError.
